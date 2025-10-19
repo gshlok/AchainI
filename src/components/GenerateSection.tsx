@@ -2,14 +2,16 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Loader2, Copy, ExternalLink } from "lucide-react";
+import { Loader2, Copy, ExternalLink, Wallet } from "lucide-react";
 import { generateAIText } from "@/lib/ai";
 import { computeHashProof, computeHashText } from "@/lib/crypto";
 import { uploadToIPFS } from "@/lib/ipfs";
 import { createProof } from "@/lib/blockchain";
 import { useToast } from "@/hooks/use-toast";
+import { useWallet } from "@/hooks/useWallet";
 
 export default function GenerateSection() {
+  const { account, isConnected } = useWallet();
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{
@@ -52,7 +54,7 @@ export default function GenerateSection() {
           hashProof,
           hashText,
           timestamp: new Date().toISOString(),
-          creator: "0x0000000000000000000000000000000000000000",
+          creator: account || "0x0000000000000000000000000000000000000000",
         };
         
         cid = await uploadToIPFS(metadata);
@@ -89,6 +91,15 @@ export default function GenerateSection() {
 
   const handleRecordProof = async () => {
     if (!result) return;
+    
+    if (!isConnected) {
+      toast({ 
+        title: "Wallet not connected", 
+        description: "Please connect your wallet to record proof on blockchain",
+        variant: "destructive" 
+      });
+      return;
+    }
     
     setLoading(true);
     try {
@@ -200,7 +211,7 @@ export default function GenerateSection() {
           {!result.txHash && (
             <Button 
               onClick={handleRecordProof}
-              disabled={loading}
+              disabled={loading || !isConnected}
               variant="secondary"
               className="w-full"
             >
@@ -208,6 +219,11 @@ export default function GenerateSection() {
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Recording...
+                </>
+              ) : !isConnected ? (
+                <>
+                  <Wallet className="mr-2 h-4 w-4" />
+                  Connect Wallet to Record Proof
                 </>
               ) : (
                 "Record Proof on Blockchain"
