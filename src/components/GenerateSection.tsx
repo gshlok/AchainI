@@ -28,40 +28,57 @@ export default function GenerateSection() {
     }
 
     setLoading(true);
+    let output = "";
+    let hashProof = "";
+    let hashText = "";
+    let cid = "";
+
     try {
       // Generate AI text
-      const output = await generateAIText(prompt);
+      output = await generateAIText(prompt);
       
       // Compute hashes
-      const hashProof = computeHashProof(prompt, output);
-      const hashText = computeHashText(output);
+      hashProof = computeHashProof(prompt, output);
+      hashText = computeHashText(output);
       
-      // Prepare metadata
-      const metadata = {
-        prompt,
-        model: "google/gemini-1.5-flash",
-        output,
-        hashProof,
-        hashText,
-        timestamp: new Date().toISOString(),
-        creator: "0x0000000000000000000000000000000000000000", // Will be replaced with actual wallet
-      };
+      toast({ title: "AI text generated successfully!" });
+
+      // Try to upload to IPFS (optional)
+      try {
+        const metadata = {
+          prompt,
+          model: "google/gemini-2.5-flash-lite",
+          output,
+          hashProof,
+          hashText,
+          timestamp: new Date().toISOString(),
+          creator: "0x0000000000000000000000000000000000000000",
+        };
+        
+        cid = await uploadToIPFS(metadata);
+        
+        // Store locally for reverse lookup
+        const lookupData = JSON.parse(localStorage.getItem("aiProofs") || "{}");
+        lookupData[hashText] = { prompt, cid, creator: metadata.creator };
+        localStorage.setItem("aiProofs", JSON.stringify(lookupData));
+        
+        toast({ title: "Metadata uploaded to IPFS!" });
+      } catch (ipfsError) {
+        console.error("IPFS upload failed:", ipfsError);
+        toast({ 
+          title: "IPFS upload failed", 
+          description: "Text generated but not stored on IPFS",
+          variant: "destructive" 
+        });
+      }
+
+      // Display result regardless of IPFS success
+      setResult({ output, hashProof, hashText, cid: cid || "Not uploaded" });
       
-      // Upload to IPFS
-      const cid = await uploadToIPFS(metadata);
-      
-      // Store locally for reverse lookup
-      const lookupData = JSON.parse(localStorage.getItem("aiProofs") || "{}");
-      lookupData[hashText] = { prompt, cid, creator: metadata.creator };
-      localStorage.setItem("aiProofs", JSON.stringify(lookupData));
-      
-      setResult({ output, hashProof, hashText, cid });
-      
-      toast({ title: "AI text generated and stored on IPFS!" });
     } catch (error) {
       console.error(error);
       toast({ 
-        title: "Generation failed", 
+        title: "AI generation failed", 
         description: error instanceof Error ? error.message : "Unknown error",
         variant: "destructive" 
       });
