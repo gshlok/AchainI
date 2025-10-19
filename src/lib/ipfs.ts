@@ -1,8 +1,8 @@
-const NFT_STORAGE_API_KEY = ""; // Add your NFT.Storage API key here
+const NFT_STORAGE_API_KEY = import.meta.env.VITE_NFT_STORAGE_API_KEY as string | undefined;
 
 export async function uploadToIPFS(metadata: any): Promise<string> {
   if (!NFT_STORAGE_API_KEY) {
-    throw new Error("NFT.Storage API key not configured");
+    throw new Error("NFT.Storage API key not configured. Set VITE_NFT_STORAGE_API_KEY in your .env file or environment.");
   }
 
   const blob = new Blob([JSON.stringify(metadata, null, 2)], { type: 'application/json' });
