@@ -17,6 +17,30 @@ Before running the project, you need to configure your environment variables:
    - Get your Gemini API key from: https://makersuite.google.com/app/apikey
    - Get your Filebase API key from: https://filebase.com/
 
+## Smart Contract Deployment
+
+This project includes a Solidity smart contract that needs to be deployed to work with the blockchain features:
+
+1. The contract is located in [contracts/AIProof.sol](file:///C:/Users/shlok/repos/ai-proof-chain/contracts/AIProof.sol)
+2. To deploy the contract, you'll need:
+   - A Polygon wallet with some MATIC tokens (for Mumbai testnet)
+   - Your wallet's private key (keep this secure!)
+   - An RPC endpoint for the network you want to deploy to
+
+3. Deployment steps:
+   ```bash
+   # Install Hardhat for contract deployment
+   npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
+   
+   # Compile the contract
+   npx hardhat compile
+   
+   # Deploy to Mumbai testnet
+   npx hardhat run scripts/deploy.ts --network mumbai
+   ```
+
+4. After deployment, update the [CONTRACT_ADDRESS](file:///C:/Users/shlok/repos/ai-proof-chain/src/lib/blockchain.ts#L3-L3) in [src/lib/blockchain.ts](file:///C:/Users/shlok/repos/ai-proof-chain/src/lib/blockchain.ts) with your deployed contract address.
+
 ## How can I edit this code?
 
 There are several ways of editing your application.

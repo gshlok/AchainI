@@ -1,6 +1,9 @@
 import { ethers } from 'ethers';
 
-const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; // Replace with deployed contract
+// TODO: Replace with your deployed contract address
+// Follow the deployment guide in DEPLOYMENT_GUIDE.md to deploy your contract
+// and update this address with the deployed contract address
+const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; 
 const CONTRACT_ABI = [
   "function createProof(bytes32 hashProof, string calldata cid) public",
   "function proofs(bytes32) public view returns (address creator, string cid, uint256 timestamp)"
