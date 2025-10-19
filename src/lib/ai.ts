@@ -1,4 +1,4 @@
-const GEMINI_API_KEY = ""; // Add your Gemini API key here
+const GEMINI_API_KEY = "AIzaSyBrQU5bEutdHfAIYA1Dkk0disUI9BxDyHc";
 
 export async function generateAIText(prompt: string): Promise<string> {
   if (!GEMINI_API_KEY) {
