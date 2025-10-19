@@ -38,11 +38,11 @@ export default function GenerateSection() {
     try {
       // Generate AI text
       output = await generateAIText(prompt);
-      
+
       // Compute hashes
       hashProof = computeHashProof(prompt, output);
       hashText = computeHashText(output);
-      
+
       toast({ title: "AI text generated successfully!" });
 
       // Try to upload to IPFS (optional)
@@ -56,33 +56,44 @@ export default function GenerateSection() {
           timestamp: new Date().toISOString(),
           creator: account || "0x0000000000000000000000000000000000000000",
         };
-        
+
         cid = await uploadToIPFS(metadata);
-        
+
         // Store locally for reverse lookup
         const lookupData = JSON.parse(localStorage.getItem("aiProofs") || "{}");
         lookupData[hashText] = { prompt, cid, creator: metadata.creator };
         localStorage.setItem("aiProofs", JSON.stringify(lookupData));
-        
-        toast({ title: "Metadata uploaded to IPFS!" });
+
+        toast({ title: "Metadata uploaded to IPFS via Filebase!" });
       } catch (ipfsError) {
         console.error("IPFS upload failed:", ipfsError);
-        toast({ 
-          title: "IPFS upload failed", 
-          description: "Text generated but not stored on IPFS",
-          variant: "destructive" 
-        });
+        const errorMessage = ipfsError instanceof Error ? ipfsError.message : "Unknown error occurred";
+
+        // Provide more specific guidance in the toast
+        if (errorMessage.includes("API key")) {
+          toast({
+            title: "IPFS upload failed - API Key Issue",
+            description: "Please check your Filebase API key in the .env file. Make sure you're using the Secret (not the Key) from your Filebase dashboard at https://filebase.com/",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "IPFS upload failed",
+            description: errorMessage,
+            variant: "destructive"
+          });
+        }
       }
 
       // Display result regardless of IPFS success
       setResult({ output, hashProof, hashText, cid: cid || "Not uploaded" });
-      
+
     } catch (error) {
       console.error(error);
-      toast({ 
-        title: "AI generation failed", 
+      toast({
+        title: "AI generation failed",
         description: error instanceof Error ? error.message : "Unknown error",
-        variant: "destructive" 
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -91,16 +102,16 @@ export default function GenerateSection() {
 
   const handleRecordProof = async () => {
     if (!result) return;
-    
+
     if (!isConnected) {
-      toast({ 
-        title: "Wallet not connected", 
+      toast({
+        title: "Wallet not connected",
         description: "Please connect your wallet to record proof on blockchain",
-        variant: "destructive" 
+        variant: "destructive"
       });
       return;
     }
-    
+
     setLoading(true);
     try {
       const txHash = await createProof(result.hashProof, result.cid);
@@ -108,10 +119,10 @@ export default function GenerateSection() {
       toast({ title: "Proof recorded on blockchain!" });
     } catch (error) {
       console.error(error);
-      toast({ 
-        title: "Blockchain recording failed", 
+      toast({
+        title: "Blockchain recording failed",
         description: error instanceof Error ? error.message : "Unknown error",
-        variant: "destructive" 
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -136,8 +147,8 @@ export default function GenerateSection() {
         />
       </div>
 
-      <Button 
-        onClick={handleGenerate} 
+      <Button
+        onClick={handleGenerate}
         disabled={loading}
         className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90"
       >
@@ -197,8 +208,8 @@ export default function GenerateSection() {
                   <div className="text-xs text-muted-foreground mb-1">Transaction Hash</div>
                   <code className="text-xs break-all">{result.txHash}</code>
                 </div>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="icon"
                   onClick={() => window.open(`https://mumbai.polygonscan.com/tx/${result.txHash}`, '_blank')}
                 >
@@ -209,7 +220,7 @@ export default function GenerateSection() {
           </div>
 
           {!result.txHash && (
-            <Button 
+            <Button
               onClick={handleRecordProof}
               disabled={loading || !isConnected}
               variant="secondary"

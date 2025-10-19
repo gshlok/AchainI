@@ -4,6 +4,19 @@
 
 **URL**: https://lovable.dev/projects/08452373-54bf-400e-a1d5-f78ca2fd98ae
 
+## Setup Instructions
+
+Before running the project, you need to configure your environment variables:
+
+1. Copy the [.env.example](file:///C:/Users/shlok/repos/ai-proof-chain/.env.example) file to create a new file named [.env](file:///C:/Users/shlok/repos/ai-proof-chain/.env):
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Open the [.env](file:///C:/Users/shlok/repos/ai-proof-chain/.env) file and fill in your API keys:
+   - Get your Gemini API key from: https://makersuite.google.com/app/apikey
+   - Get your Filebase API key from: https://filebase.com/
+
 ## How can I edit this code?
 
 There are several ways of editing your application.
@@ -48,7 +61,7 @@ npm run dev
 - Click on the "Code" button (green button) near the top right.
 - Select the "Codespaces" tab.
 - Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- Edit files directly within the Codespaces and commit and push your changes once you're done.
 
 ## What technologies are used for this project?
 

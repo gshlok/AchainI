@@ -47,7 +47,7 @@ const Index = () => {
           <p className="mb-2">⚠️ Configuration Required:</p>
           <ul className="space-y-1">
             <li>• Add your Gemini API key in <code className="bg-secondary px-2 py-1 rounded">src/lib/ai.ts</code></li>
-            <li>• Add your NFT.Storage API key in <code className="bg-secondary px-2 py-1 rounded">src/lib/ipfs.ts</code></li>
+            <li>• Add your Filebase API key in <code className="bg-secondary px-2 py-1 rounded">src/lib/ipfs.ts</code></li>
             <li>• Deploy smart contract and update address in <code className="bg-secondary px-2 py-1 rounded">src/lib/blockchain.ts</code></li>
           </ul>
         </footer>
