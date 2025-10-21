@@ -9,20 +9,21 @@ export function useWallet() {
   useEffect(() => {
     checkConnection();
     
-    if ((window as any).ethereum) {
+    if (typeof window !== 'undefined' && (window as any).ethereum) {
       (window as any).ethereum.on('accountsChanged', handleAccountsChanged);
-      (window as any).ethereum.on('chainChanged', () => window.location.reload());
+      (window as any).ethereum.on('chainChanged', handleChainChanged);
     }
 
     return () => {
-      if ((window as any).ethereum) {
+      if (typeof window !== 'undefined' && (window as any).ethereum) {
         (window as any).ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        (window as any).ethereum.removeListener('chainChanged', handleChainChanged);
       }
     };
   }, []);
 
   const checkConnection = async () => {
-    if (!(window as any).ethereum) return;
+    if (typeof window === 'undefined' || !(window as any).ethereum) return;
     
     try {
       const accounts = await (window as any).ethereum.request({ 
@@ -42,14 +43,30 @@ export function useWallet() {
       toast({ title: 'Wallet disconnected' });
     } else {
       setAccount(accounts[0]);
+      toast({ title: 'Wallet connected!', description: `Connected account: ${accounts[0]}` });
     }
   };
 
+  const handleChainChanged = () => {
+    window.location.reload();
+  };
+
   const connectWallet = async () => {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') {
+      toast({
+        title: 'Unsupported environment',
+        description: 'Wallet connection is only available in browser environments',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Check if MetaMask or another Ethereum provider is installed
     if (!(window as any).ethereum) {
       toast({
-        title: 'MetaMask not found',
-        description: 'Please install MetaMask to connect your wallet',
+        title: 'Ethereum provider not found',
+        description: 'Please install MetaMask or another Ethereum wallet to connect',
         variant: 'destructive'
       });
       return;
@@ -57,16 +74,35 @@ export function useWallet() {
 
     setIsConnecting(true);
     try {
+      // Request account access
       const accounts = await (window as any).ethereum.request({
         method: 'eth_requestAccounts'
       });
-      setAccount(accounts[0]);
-      toast({ title: 'Wallet connected!' });
-    } catch (error) {
+      
+      if (accounts && accounts.length > 0) {
+        setAccount(accounts[0]);
+        toast({ 
+          title: 'Wallet connected successfully!',
+          description: `Connected account: ${accounts[0]}`
+        });
+      } else {
+        throw new Error('No accounts returned from wallet');
+      }
+    } catch (error: any) {
       console.error('Error connecting wallet:', error);
+      let errorMessage = 'Failed to connect wallet';
+      
+      if (error.code === 4001) {
+        errorMessage = 'Connection request rejected by user';
+      } else if (error.code === -32002) {
+        errorMessage = 'Connection request is already pending. Please check your wallet.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: 'Connection failed',
-        description: error instanceof Error ? error.message : 'Failed to connect wallet',
+        description: errorMessage,
         variant: 'destructive'
       });
     } finally {
@@ -76,6 +112,12 @@ export function useWallet() {
 
   const disconnectWallet = () => {
     setAccount(null);
+    if (typeof window !== 'undefined' && (window as any).ethereum) {
+      // Some wallets may need explicit disconnection
+      if ((window as any).ethereum.removeAllListeners) {
+        (window as any).ethereum.removeAllListeners();
+      }
+    }
     toast({ title: 'Wallet disconnected' });
   };
 

@@ -6,6 +6,7 @@ export default function WalletConnect() {
   const { account, isConnecting, connectWallet, disconnectWallet, isConnected } = useWallet();
 
   const formatAddress = (address: string) => {
+    if (!address) return '';
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
@@ -35,7 +36,13 @@ export default function WalletConnect() {
       className="gap-2"
     >
       <Wallet className="h-4 w-4" />
-      {isConnecting ? "Connecting..." : "Connect Wallet"}
+      {isConnecting ? (
+        <>
+          <span className="animate-pulse">Connecting...</span>
+        </>
+      ) : (
+        "Connect Wallet"
+      )}
     </Button>
   );
 }
