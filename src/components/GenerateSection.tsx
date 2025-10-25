@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Loader2, Copy, ExternalLink, Wallet, Image as ImageIcon, Type } from "lucide-react";
+import { Loader2, Copy, ExternalLink, Wallet } from "lucide-react";
 import { generateAIText } from "@/lib/ai";
 import { computeHashProof, computeHashText } from "@/lib/crypto";
 import { uploadToIPFS } from "@/lib/ipfs";
@@ -14,7 +14,6 @@ export default function GenerateSection() {
   const { account, isConnected } = useWallet();
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
-  const [generationMode, setGenerationMode] = useState<"text" | "image">("text");
   const [result, setResult] = useState<{
     output: string;
     hashProof: string;
@@ -27,12 +26,6 @@ export default function GenerateSection() {
   const handleGenerate = async () => {
     if (!prompt.trim()) {
       toast({ title: "Please enter a prompt", variant: "destructive" });
-      return;
-    }
-
-    // If image generation is selected, show the API limit message on the button
-    if (generationMode === "image") {
-      // We don't need to do anything here, the button will show the message
       return;
     }
 
@@ -107,6 +100,35 @@ export default function GenerateSection() {
     }
   };
 
+  const handleRecordProof = async () => {
+    if (!result) return;
+
+    if (!isConnected) {
+      toast({
+        title: "Wallet not connected",
+        description: "Please connect your wallet to record proof on blockchain",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const txHash = await createProof(result.hashProof, result.cid);
+      setResult({ ...result, txHash });
+      toast({ title: "Proof recorded on blockchain!" });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Blockchain recording failed",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({ title: "Copied to clipboard" });
@@ -119,51 +141,28 @@ export default function GenerateSection() {
         <Textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder={generationMode === "text" 
-            ? "e.g., Write a haiku about blockchain technology" 
-            : "e.g., A futuristic cityscape at sunset"}
+          placeholder="e.g., Write a haiku about blockchain technology"
           className="min-h-[120px] resize-none"
           disabled={loading}
         />
       </div>
 
-      <div className="flex gap-2">
-        <Button
-          variant={generationMode === "text" ? "default" : "outline"}
-          onClick={() => setGenerationMode("text")}
-          className="flex-1"
-        >
-          <Type className="mr-2 h-4 w-4" />
-          Text Generation
-        </Button>
-        <Button
-          variant={generationMode === "image" ? "default" : "outline"}
-          onClick={() => setGenerationMode("image")}
-          className="flex-1"
-        >
-          <ImageIcon className="mr-2 h-4 w-4" />
-          Image Generation
-        </Button>
-      </div>
-
       <Button
         onClick={handleGenerate}
-        disabled={loading || generationMode === "image"}
+        disabled={loading}
         className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90"
       >
         {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Generating {generationMode}...
+            Generating...
           </>
-        ) : generationMode === "image" ? (
-          "Image generation currently unavailable because of API limit"
         ) : (
           "Generate AI Text"
         )}
       </Button>
 
-      {result && generationMode === "text" && (
+      {result && (
         <Card className="p-6 space-y-4 bg-card border-border">
           <div className="space-y-2">
             <h3 className="font-semibold text-lg">Generated Text</h3>
@@ -222,34 +221,7 @@ export default function GenerateSection() {
 
           {!result.txHash && (
             <Button
-              onClick={() => {
-                if (!isConnected) {
-                  toast({
-                    title: "Wallet not connected",
-                    description: "Please connect your wallet to record proof on blockchain",
-                    variant: "destructive"
-                  });
-                  return;
-                }
-                // Handle record proof
-                setLoading(true);
-                createProof(result.hashProof, result.cid)
-                  .then(txHash => {
-                    setResult({ ...result, txHash });
-                    toast({ title: "Proof recorded on blockchain!" });
-                  })
-                  .catch(error => {
-                    console.error(error);
-                    toast({
-                      title: "Blockchain recording failed",
-                      description: error instanceof Error ? error.message : "Unknown error",
-                      variant: "destructive"
-                    });
-                  })
-                  .finally(() => {
-                    setLoading(false);
-                  });
-              }}
+              onClick={handleRecordProof}
               disabled={loading || !isConnected}
               variant="secondary"
               className="w-full"

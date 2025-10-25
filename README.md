@@ -6,11 +6,9 @@ AchainI is a cutting-edge web application that combines artificial intelligence 
 
 **APP IS DEPLOYED AT:** [https://achain-i.vercel.app/](https://achain-i.vercel.app/)
 
-**DEMONSTRATION VIDEO:** [Will be uploaded soon]
-
 ## 🚀 Features
 
-- **AI-Powered Text Generation**: Leverages Google's Gemini AI to create high-quality text content (model selection and image/vid generation coming soon)
+- **AI-Powered Content Generation**: Leverages Google's Gemini AI to create high-quality content (image gen disabled for now)
 - **Blockchain Verification**: Uses blockchain to create immutable proof of AI-generated content
 - **Decentralized Storage**: Stores content on IPFS via Filebase for censorship-resistant access
 - **Web3 Wallet Integration**: Connect your MetaMask or other Ethereum-compatible wallet
@@ -57,85 +55,16 @@ Before you begin, ensure you have the following:
    - Get your Gemini API key from: https://makersuite.google.com/app/apikey
    - Get your Filebase API key from: https://filebase.com/
 
-4. **Compile smart contracts**:
-   ```bash
-   npm run compile-contract
-   ```
-
-5. **Deploy smart contract** (to Mumbai testnet):
-   ```bash
-   npm run deploy-contract
-   ```
-   After deployment, update the `CONTRACT_ADDRESS` in [src/lib/blockchain.ts](file:///c:/Users/shlok/repos/AchainI/src/lib/blockchain.ts) with your deployed contract address.
-
-6. **Start the development server**:
+4. **Start the development server**:
    ```bash
    npm run dev
    ```
 
-7. **Build for production**:
+5. **Build for production**:
    ```bash
    npm run build
    ```
 
-## 🧠 How It Works
-
-1. **Generate Content**: Users input prompts to generate AI-powered text content
-2. **Create Proof**: The system hashes the content and stores it on IPFS
-3. **Blockchain Record**: A transaction is sent to the Polygon blockchain to create an immutable record
-4. **Verification**: Anyone can verify the authenticity of content using the verification feature
-
-## 📁 Project Structure
-
-```
-├── contracts/           # Solidity smart contracts
-├── src/
-│   ├── components/      # React UI components
-│   ├── hooks/           # Custom React hooks
-│   ├── lib/             # Utility modules (AI, blockchain, IPFS)
-│   ├── pages/           # Page components
-│   └── App.tsx          # Main application component
-├── scripts/             # Deployment scripts
-└── public/              # Static assets
-```
-
-## 📜 Smart Contract Deployment
-
-To deploy the AIProof.sol contract:
-
-1. Install Hardhat dependencies:
-   ```bash
-   npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
-   ```
-
-2. Compile the contract:
-   ```bash
-   npx hardhat compile
-   ```
-
-3. Deploy to Mumbai testnet:
-   ```bash
-   npx hardhat run scripts/deploy.ts --network mumbai
-   ```
-
-4. Update `CONTRACT_ADDRESS` in [src/lib/blockchain.ts](file:///c:/Users/shlok/repos/AchainI/src/lib/blockchain.ts) with the deployed address.
-
-Prerequisites:
-- Wallet with MATIC on Mumbai testnet
-- Private key (keep this secure!)
-- RPC endpoint
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgements
-
-- Google Gemini for AI capabilities
-- Polygon for blockchain infrastructure
-- Filebase for IPFS storage
-- All the open-source libraries and tools that made this project possible
