@@ -10,10 +10,11 @@ AchainI is a cutting-edge web application that combines artificial intelligence 
 
 ## 🚀 Features
 
-- **AI-Powered Content Generation**: Leverages Google's Gemini AI to create high-quality content (image gen disabled for now)
+- **AI-Powered Content Generation**: Leverages Google's Gemini AI to create high-quality text content and Puter.js for image generation
 - **Blockchain Verification**: Uses blockchain to create immutable proof of AI-generated content
 - **Decentralized Storage**: Stores content on IPFS via Filebase for censorship-resistant access
 - **Web3 Wallet Integration**: Connect your MetaMask or other Ethereum-compatible wallet
+- **Content Verification**: Verify both AI-generated text and images with blockchain proof
 - **User-Friendly Interface**: Built with React, TypeScript, and shadcn-ui for a modern experience
 
 ## 🛠️ Technology Stack
@@ -23,7 +24,7 @@ AchainI is a cutting-edge web application that combines artificial intelligence 
 - **Styling**: Tailwind CSS
 - **Smart Contracts**: Solidity, Hardhat for compilation and deployment
 - **Blockchain Interaction**: ethers.js
-- **AI Services**: Google Gemini API
+- **AI Services**: Google Gemini API, Puter.js
 - **Storage**: IPFS via Filebase
 - **State Management**: @tanstack/react-query
 - **Form Handling**: react-hook-form with Zod validation

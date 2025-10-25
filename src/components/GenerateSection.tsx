@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Loader2, Copy, ExternalLink, Wallet } from "lucide-react";
-import { generateAIText } from "@/lib/ai";
+import { generateAIText, generateAIImage } from "@/lib/ai";
 import { computeHashProof, computeHashText } from "@/lib/crypto";
 import { uploadToIPFS } from "@/lib/ipfs";
 import { createProof } from "@/lib/blockchain";
@@ -20,7 +20,9 @@ export default function GenerateSection() {
     hashText: string;
     cid: string;
     txHash?: string;
+    image?: HTMLImageElement;
   } | null>(null);
+  const [generationMode, setGenerationMode] = useState<"text" | "image">("text");
   const { toast } = useToast();
 
   const handleGenerate = async () => {
@@ -34,27 +36,43 @@ export default function GenerateSection() {
     let hashProof = "";
     let hashText = "";
     let cid = "";
+    let imageElement: HTMLImageElement | undefined;
 
     try {
-      // Generate AI text
-      output = await generateAIText(prompt);
+      if (generationMode === "text") {
+        // Generate AI text
+        output = await generateAIText(prompt);
 
-      // Compute hashes
-      hashProof = computeHashProof(prompt, output);
-      hashText = computeHashText(output);
+        // Compute hashes
+        hashProof = computeHashProof(prompt, output);
+        hashText = computeHashText(output);
 
-      toast({ title: "AI text generated successfully!" });
+        toast({ title: "AI text generated successfully!" });
+      } else {
+        // Generate AI image
+        imageElement = await generateAIImage(prompt);
+        
+        // For image generation, we'll use a placeholder for the "output" text
+        output = "[Image Generated]";
+        
+        // Compute hashes (using prompt and a placeholder for output)
+        hashProof = computeHashProof(prompt, "[Image Generated]");
+        hashText = computeHashText("[Image Generated]");
+        
+        toast({ title: "AI image generated successfully!" });
+      }
 
       // Try to upload to IPFS (optional)
       try {
         const metadata = {
           prompt,
-          model: "google/gemini-2.5-flash-lite",
+          model: generationMode === "text" ? "google/gemini-2.5-flash-lite" : "puter-ai-image",
           output,
           hashProof,
           hashText,
           timestamp: new Date().toISOString(),
           creator: account || "0x0000000000000000000000000000000000000000",
+          type: generationMode,
         };
 
         cid = await uploadToIPFS(metadata);
@@ -86,7 +104,13 @@ export default function GenerateSection() {
       }
 
       // Display result regardless of IPFS success
-      setResult({ output, hashProof, hashText, cid: cid || "Not uploaded" });
+      setResult({ 
+        output, 
+        hashProof, 
+        hashText, 
+        cid: cid || "Not uploaded",
+        image: imageElement
+      });
 
     } catch (error) {
       console.error(error);
@@ -136,15 +160,36 @@ export default function GenerateSection() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Enter your AI prompt</label>
-        <Textarea
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="e.g., Write a haiku about blockchain technology"
-          className="min-h-[120px] resize-none"
-          disabled={loading}
-        />
+      <div className="space-y-4">
+        <div className="flex space-x-4">
+          <Button
+            variant={generationMode === "text" ? "default" : "outline"}
+            onClick={() => setGenerationMode("text")}
+            className="flex-1"
+          >
+            Generate Text
+          </Button>
+          <Button
+            variant={generationMode === "image" ? "default" : "outline"}
+            onClick={() => setGenerationMode("image")}
+            className="flex-1"
+          >
+            Generate Image
+          </Button>
+        </div>
+        
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Enter your AI prompt</label>
+          <Textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder={generationMode === "text" 
+              ? "e.g., Write a haiku about blockchain technology" 
+              : "e.g., A futuristic city with flying cars"}
+            className="min-h-[120px] resize-none"
+            disabled={loading}
+          />
+        </div>
       </div>
 
       <Button
@@ -158,18 +203,34 @@ export default function GenerateSection() {
             Generating...
           </>
         ) : (
-          "Generate AI Text"
+          generationMode === "text" ? "Generate AI Text" : "Generate AI Image"
         )}
       </Button>
 
       {result && (
         <Card className="p-6 space-y-4 bg-card border-border">
-          <div className="space-y-2">
-            <h3 className="font-semibold text-lg">Generated Text</h3>
-            <div className="bg-secondary/50 p-4 rounded-lg text-sm whitespace-pre-wrap">
-              {result.output}
+          {generationMode === "text" ? (
+            <div className="space-y-2">
+              <h3 className="font-semibold text-lg">Generated Text</h3>
+              <div className="bg-secondary/50 p-4 rounded-lg text-sm whitespace-pre-wrap">
+                {result.output}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-2">
+              <h3 className="font-semibold text-lg">Generated Image</h3>
+              <div className="bg-secondary/50 p-4 rounded-lg flex justify-center">
+                {result.image && (
+                  <img 
+                    src={result.image.src} 
+                    alt="AI Generated" 
+                    className="max-w-full h-auto rounded-lg"
+                    style={{ maxHeight: '400px' }}
+                  />
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="grid gap-3">
             <div className="flex items-center justify-between bg-secondary/30 p-3 rounded-lg">

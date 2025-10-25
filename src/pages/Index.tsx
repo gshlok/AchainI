@@ -15,7 +15,7 @@ const Index = () => {
                 AchainI
               </h1>
               <p className="text-muted-foreground text-lg">
-                AI-Powered Text Generation with Blockchain Proof & IPFS Storage
+                AI-Powered Text & Image Generation with Blockchain Proof & IPFS Storage
               </p>
             </div>
             <WalletConnect />

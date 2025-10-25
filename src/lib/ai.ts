@@ -26,3 +26,29 @@ export async function generateAIText(prompt: string): Promise<string> {
   const data = await response.json();
   return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
 }
+
+export async function generateAIImage(prompt: string, options?: { model?: string; quality?: string }): Promise<HTMLImageElement> {
+  // Check if puter is available on the window object
+  if (!window.puter?.ai) {
+    throw new Error("Puter.js is not available. Make sure the Puter.js script is loaded.");
+  }
+
+  // Use Puter.js for image generation
+  return new Promise((resolve, reject) => {
+    try {
+      // If options are provided, use them; otherwise use default settings
+      const imageOptions = options ? { model: options.model, quality: options.quality } : {};
+      
+      // Generate image using Puter.js
+      window.puter.ai.txt2img(prompt, imageOptions)
+        .then((imageElement: HTMLImageElement) => {
+          resolve(imageElement);
+        })
+        .catch((error: Error) => {
+          reject(new Error(`Image generation failed: ${error.message}`));
+        });
+    } catch (error) {
+      reject(new Error(`Image generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
+    }
+  });
+}
