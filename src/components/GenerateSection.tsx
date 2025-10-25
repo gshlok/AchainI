@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Loader2, Copy, ExternalLink, Wallet } from "lucide-react";
+import { Loader2, Copy, ExternalLink, Wallet, Download } from "lucide-react";
 import { generateAIText, generateAIImage } from "@/lib/ai";
 import { computeHashProof, computeHashText } from "@/lib/crypto";
 import { uploadToIPFS } from "@/lib/ipfs";
@@ -158,6 +158,27 @@ export default function GenerateSection() {
     toast({ title: "Copied to clipboard" });
   };
 
+  const downloadImage = (format: "png" | "jpg") => {
+    if (!result?.image) return;
+
+    try {
+      const image = result.image;
+      const link = document.createElement("a");
+      link.href = image.src;
+      link.download = `ai-generated-image.${format}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast({ title: `Image downloaded as ${format.toUpperCase()}` });
+    } catch (error) {
+      toast({
+        title: "Download failed",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -217,8 +238,30 @@ export default function GenerateSection() {
               </div>
             </div>
           ) : (
-            <div className="space-y-2">
-              <h3 className="font-semibold text-lg">Generated Image</h3>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="font-semibold text-lg">Generated Image</h3>
+                {result.image && (
+                  <div className="flex space-x-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => downloadImage("png")}
+                    >
+                      <Download className="h-4 w-4 mr-1" />
+                      PNG
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => downloadImage("jpg")}
+                    >
+                      <Download className="h-4 w-4 mr-1" />
+                      JPG
+                    </Button>
+                  </div>
+                )}
+              </div>
               <div className="bg-secondary/50 p-4 rounded-lg flex justify-center">
                 {result.image && (
                   <img 
