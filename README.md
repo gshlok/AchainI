@@ -6,7 +6,7 @@ AchainI is a cutting-edge web application that combines artificial intelligence 
 
 **APP IS DEPLOYED AT:** [https://achain-i.vercel.app/](https://achain-i.vercel.app/)
 
-**DEMONSTRATION VIDEO:** [View Demo Video](https://youtu.be/CYs-PhjFylo)
+**DEMONSTRATION VIDEO:** [View Demo Video](https://www.youtube.com/watch?v=5zMrzDIO_xc)
 
 ## 🚀 Features
 
