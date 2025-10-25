@@ -52,3 +52,12 @@ export async function generateAIImage(prompt: string, options?: { model?: string
     }
   });
 }
+
+// Helper function to convert image URL to ArrayBuffer for hashing
+export async function getImageDataFromUrl(url: string): Promise<ArrayBuffer> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image: ${response.statusText}`);
+  }
+  return response.arrayBuffer();
+}

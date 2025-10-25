@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, ExternalLink, Image as ImageIcon, FileText, Upload } from "lucide-react";
-import { computeHashText } from "@/lib/crypto";
+import { computeHashText, computeImageFileHash } from "@/lib/crypto";
 import { useToast } from "@/hooks/use-toast";
 
 export default function VerifySection() {
@@ -53,8 +53,7 @@ export default function VerifySection() {
     const lookupData = JSON.parse(localStorage.getItem("aiProofs") || "{}");
     let found = false;
     
-    // In a real implementation, we would need to store image-specific data
-    // For now, we'll just check if the CID exists in our lookup data
+    // Check if the CID exists in our lookup data
     for (const key in lookupData) {
       if (lookupData[key].cid === imageCID) {
         setVerification({...lookupData[key], type: "image"});
@@ -94,24 +93,44 @@ export default function VerifySection() {
       return;
     }
 
-    toast({ 
-      title: "Image verification", 
-      description: "In a full implementation, this would hash the image and compare it with stored proofs. For now, this demonstrates the UI.",
-      variant: "default" 
-    });
-    
-    // In a real implementation, we would:
-    // 1. Hash the image content
-    // 2. Compare with stored hashes
-    // 3. Return verification results
-    
-    // For demo purposes, we'll just show a message
-    setVerification({
-      prompt: "Image verification would compare the image hash with stored proofs",
-      creator: "0x0000000000000000000000000000000000000000",
-      cid: "This is a demonstration of the UI functionality",
-      type: "image"
-    });
+    try {
+      // Hash the uploaded image
+      const imageHash = await computeImageFileHash(uploadedImage);
+      
+      // Check if this hash exists in our lookup data
+      const lookupData = JSON.parse(localStorage.getItem("aiProofs") || "{}");
+      let found = false;
+      
+      // Look for a matching image hash
+      for (const key in lookupData) {
+        if (lookupData[key].imageHash === imageHash) {
+          setVerification({
+            prompt: lookupData[key].prompt,
+            creator: lookupData[key].creator,
+            cid: lookupData[key].cid,
+            type: "image"
+          });
+          toast({ title: "Match found!", description: "This image was generated through our system" });
+          found = true;
+          break;
+        }
+      }
+      
+      if (!found) {
+        setVerification(null);
+        toast({ 
+          title: "No match found", 
+          description: "This image was not generated through this system",
+          variant: "destructive" 
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Verification failed",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive"
+      });
+    }
   };
 
   return (

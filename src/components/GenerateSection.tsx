@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Loader2, Copy, ExternalLink, Wallet, Download } from "lucide-react";
-import { generateAIText, generateAIImage } from "@/lib/ai";
-import { computeHashProof, computeHashText } from "@/lib/crypto";
+import { generateAIText, generateAIImage, getImageDataFromUrl } from "@/lib/ai";
+import { computeHashProof, computeHashText, computeImageHash } from "@/lib/crypto";
 import { uploadToIPFS } from "@/lib/ipfs";
 import { createProof } from "@/lib/blockchain";
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +21,7 @@ export default function GenerateSection() {
     cid: string;
     txHash?: string;
     image?: HTMLImageElement;
+    imageHash?: string;
   } | null>(null);
   const [generationMode, setGenerationMode] = useState<"text" | "image">("text");
   const { toast } = useToast();
@@ -37,6 +38,7 @@ export default function GenerateSection() {
     let hashText = "";
     let cid = "";
     let imageElement: HTMLImageElement | undefined;
+    let imageHash: string | undefined;
 
     try {
       if (generationMode === "text") {
@@ -51,6 +53,14 @@ export default function GenerateSection() {
       } else {
         // Generate AI image
         imageElement = await generateAIImage(prompt);
+        
+        // Compute image hash
+        try {
+          const imageData = await getImageDataFromUrl(imageElement.src);
+          imageHash = await computeImageHash(imageData);
+        } catch (hashError) {
+          console.warn("Could not compute image hash:", hashError);
+        }
         
         // For image generation, we'll use a placeholder for the "output" text
         output = "[Image Generated]";
@@ -79,7 +89,13 @@ export default function GenerateSection() {
 
         // Store locally for reverse lookup
         const lookupData = JSON.parse(localStorage.getItem("aiProofs") || "{}");
-        lookupData[hashText] = { prompt, cid, creator: metadata.creator };
+        lookupData[hashText] = { 
+          prompt, 
+          cid, 
+          creator: metadata.creator,
+          type: generationMode,
+          imageHash: imageHash || undefined
+        };
         localStorage.setItem("aiProofs", JSON.stringify(lookupData));
 
         toast({ title: "Metadata uploaded to IPFS via Filebase!" });
@@ -109,7 +125,8 @@ export default function GenerateSection() {
         hashProof, 
         hashText, 
         cid: cid || "Not uploaded",
-        image: imageElement
+        image: imageElement,
+        imageHash
       });
 
     } catch (error) {
