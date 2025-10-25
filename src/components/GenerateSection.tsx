@@ -53,7 +53,7 @@ export default function GenerateSection() {
       } else {
         // Generate AI image
         imageElement = await generateAIImage(prompt);
-        
+
         // Compute image hash
         try {
           const imageData = await getImageDataFromUrl(imageElement.src);
@@ -61,14 +61,14 @@ export default function GenerateSection() {
         } catch (hashError) {
           console.warn("Could not compute image hash:", hashError);
         }
-        
+
         // For image generation, we'll use a placeholder for the "output" text
         output = "[Image Generated]";
-        
+
         // Compute hashes (using prompt and a placeholder for output)
         hashProof = computeHashProof(prompt, "[Image Generated]");
         hashText = computeHashText("[Image Generated]");
-        
+
         toast({ title: "AI image generated successfully!" });
       }
 
@@ -89,9 +89,9 @@ export default function GenerateSection() {
 
         // Store locally for reverse lookup
         const lookupData = JSON.parse(localStorage.getItem("aiProofs") || "{}");
-        lookupData[hashText] = { 
-          prompt, 
-          cid, 
+        lookupData[hashText] = {
+          prompt,
+          cid,
           creator: metadata.creator,
           type: generationMode,
           imageHash: imageHash || undefined
@@ -120,10 +120,10 @@ export default function GenerateSection() {
       }
 
       // Display result regardless of IPFS success
-      setResult({ 
-        output, 
-        hashProof, 
-        hashText, 
+      setResult({
+        output,
+        hashProof,
+        hashText,
         cid: cid || "Not uploaded",
         image: imageElement,
         imageHash
@@ -215,14 +215,14 @@ export default function GenerateSection() {
             Generate Image
           </Button>
         </div>
-        
+
         <div className="space-y-2">
           <label className="text-sm font-medium">Enter your AI prompt</label>
           <Textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder={generationMode === "text" 
-              ? "e.g., Write a haiku about blockchain technology" 
+            placeholder={generationMode === "text"
+              ? "e.g., Write a haiku about blockchain technology"
               : "e.g., A futuristic city with flying cars"}
             className="min-h-[120px] resize-none"
             disabled={loading}
@@ -281,9 +281,9 @@ export default function GenerateSection() {
               </div>
               <div className="bg-secondary/50 p-4 rounded-lg flex justify-center">
                 {result.image && (
-                  <img 
-                    src={result.image.src} 
-                    alt="AI Generated" 
+                  <img
+                    src={result.image.src}
+                    alt="AI Generated"
                     className="max-w-full h-auto rounded-lg"
                     style={{ maxHeight: '400px' }}
                   />

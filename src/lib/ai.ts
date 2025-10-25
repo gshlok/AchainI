@@ -38,7 +38,7 @@ export async function generateAIImage(prompt: string, options?: { model?: string
     try {
       // If options are provided, use them; otherwise use default settings
       const imageOptions = options ? { model: options.model, quality: options.quality } : {};
-      
+
       // Generate image using Puter.js
       window.puter.ai.txt2img(prompt, imageOptions)
         .then((imageElement: HTMLImageElement) => {

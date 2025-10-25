@@ -1,6 +1,6 @@
-# AchainI - AI-Powered Text Generation with Blockchain Proof & IPFS Storage
+# AchainI - AI-Powered Text & Image Generation with Blockchain Proof & IPFS Storage
 
-AchainI is a cutting-edge web application that combines artificial intelligence with blockchain technology to generate text content while providing immutable proof of creation and decentralized storage.
+AchainI is a cutting-edge web application that combines artificial intelligence with blockchain technology to generate text and image content while providing immutable proof of creation and decentralized storage.
 
 ## 🌐 Live Demo
 
@@ -10,11 +10,12 @@ AchainI is a cutting-edge web application that combines artificial intelligence 
 
 ## 🚀 Features
 
-- **AI-Powered Content Generation**: Leverages Google's Gemini AI to create high-quality text content and Puter.js for image generation
+- **AI-Powered Content Generation**: Leverages Google's Gemini AI for text generation and Puter.js for image generation
 - **Blockchain Verification**: Uses blockchain to create immutable proof of AI-generated content
 - **Decentralized Storage**: Stores content on IPFS via Filebase for censorship-resistant access
 - **Web3 Wallet Integration**: Connect your MetaMask or other Ethereum-compatible wallet
-- **Content Verification**: Verify both AI-generated text and images with blockchain proof
+- **Content Verification**: Verify both AI-generated text and images with original prompts and blockchain proof
+- **Image Download**: Download AI-generated images in PNG or JPG format
 - **User-Friendly Interface**: Built with React, TypeScript, and shadcn-ui for a modern experience
 
 ## 🛠️ Technology Stack
@@ -67,6 +68,23 @@ Before you begin, ensure you have the following:
    ```bash
    npm run build
    ```
+
+## 🎨 Using Image Generation & Verification
+
+### Generate Images
+1. Navigate to the "Generate" tab
+2. Select "Generate Image" mode
+3. Enter your image prompt (e.g., "A futuristic city with flying cars")
+4. Click "Generate AI Image"
+5. Download the image in PNG or JPG format using the download buttons
+
+### Verify Images
+1. Navigate to the "Verify" tab
+2. Choose one of three verification methods:
+   - **Verify Text**: Paste AI-generated text to verify
+   - **Verify by CID**: Enter the IPFS CID of a generated image
+   - **Verify by Upload**: Upload an image file to verify
+3. If verification succeeds, you'll see the original prompt and creator details
 
 ## 🤝 Contributing
 

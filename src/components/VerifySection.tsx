@@ -29,16 +29,16 @@ export default function VerifySection() {
 
     const hashText = computeHashText(inputText);
     const lookupData = JSON.parse(localStorage.getItem("aiProofs") || "{}");
-    
+
     if (lookupData[hashText]) {
-      setVerification({...lookupData[hashText], type: "text"});
+      setVerification({ ...lookupData[hashText], type: "text" });
       toast({ title: "Match found!" });
     } else {
       setVerification(null);
-      toast({ 
-        title: "No match found", 
+      toast({
+        title: "No match found",
         description: "This text was not generated through this system",
-        variant: "destructive" 
+        variant: "destructive"
       });
     }
   };
@@ -52,23 +52,23 @@ export default function VerifySection() {
     // For image verification, we'll search through all stored proofs to find a match
     const lookupData = JSON.parse(localStorage.getItem("aiProofs") || "{}");
     let found = false;
-    
+
     // Check if the CID exists in our lookup data
     for (const key in lookupData) {
       if (lookupData[key].cid === imageCID) {
-        setVerification({...lookupData[key], type: "image"});
+        setVerification({ ...lookupData[key], type: "image" });
         toast({ title: "Match found!" });
         found = true;
         break;
       }
     }
-    
+
     if (!found) {
       setVerification(null);
-      toast({ 
-        title: "No match found", 
+      toast({
+        title: "No match found",
         description: "This image was not generated through this system",
-        variant: "destructive" 
+        variant: "destructive"
       });
     }
   };
@@ -77,7 +77,7 @@ export default function VerifySection() {
     const file = e.target.files?.[0];
     if (file) {
       setUploadedImage(file);
-      
+
       // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -96,11 +96,11 @@ export default function VerifySection() {
     try {
       // Hash the uploaded image
       const imageHash = await computeImageFileHash(uploadedImage);
-      
+
       // Check if this hash exists in our lookup data
       const lookupData = JSON.parse(localStorage.getItem("aiProofs") || "{}");
       let found = false;
-      
+
       // Look for a matching image hash
       for (const key in lookupData) {
         if (lookupData[key].imageHash === imageHash) {
@@ -115,13 +115,13 @@ export default function VerifySection() {
           break;
         }
       }
-      
+
       if (!found) {
         setVerification(null);
-        toast({ 
-          title: "No match found", 
+        toast({
+          title: "No match found",
           description: "This image was not generated through this system",
-          variant: "destructive" 
+          variant: "destructive"
         });
       }
     } catch (error) {
@@ -149,7 +149,7 @@ export default function VerifySection() {
           Verify by Upload
         </TabsTrigger>
       </TabsList>
-      
+
       <TabsContent value="text">
         <div className="space-y-6">
           <div className="space-y-2">
@@ -162,7 +162,7 @@ export default function VerifySection() {
             />
           </div>
 
-          <Button 
+          <Button
             onClick={handleVerifyText}
             variant="secondary"
             className="w-full"
@@ -172,7 +172,7 @@ export default function VerifySection() {
           </Button>
         </div>
       </TabsContent>
-      
+
       <TabsContent value="image-cid">
         <div className="space-y-6">
           <div className="space-y-2">
@@ -184,7 +184,7 @@ export default function VerifySection() {
             />
           </div>
 
-          <Button 
+          <Button
             onClick={handleVerifyImage}
             variant="secondary"
             className="w-full"
@@ -194,7 +194,7 @@ export default function VerifySection() {
           </Button>
         </div>
       </TabsContent>
-      
+
       <TabsContent value="image-upload">
         <div className="space-y-6">
           <div className="space-y-2">
@@ -210,9 +210,9 @@ export default function VerifySection() {
               <label htmlFor="image-upload" className="cursor-pointer">
                 {imagePreview ? (
                   <div className="flex flex-col items-center">
-                    <img 
-                      src={imagePreview} 
-                      alt="Preview" 
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
                       className="max-h-40 rounded-lg mb-2"
                     />
                     <p className="text-sm text-muted-foreground">Click to change image</p>
@@ -228,7 +228,7 @@ export default function VerifySection() {
             </div>
           </div>
 
-          <Button 
+          <Button
             onClick={handleVerifyUploadedImage}
             variant="secondary"
             className="w-full"
@@ -243,7 +243,7 @@ export default function VerifySection() {
       {verification && (
         <Card className="p-6 space-y-4 bg-card border-border">
           <h3 className="font-semibold text-lg">Verification Result</h3>
-          
+
           <div className="space-y-3">
             <div className="bg-secondary/30 p-4 rounded-lg">
               <div className="text-xs text-muted-foreground mb-2">Original Prompt</div>
@@ -261,8 +261,8 @@ export default function VerifySection() {
                 <code className="text-xs break-all">{verification.cid}</code>
               </div>
               {verification.cid.startsWith("Qm") && (
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="icon"
                   onClick={() => window.open(`https://ipfs.io/ipfs/${verification.cid}`, '_blank')}
                 >
@@ -270,7 +270,7 @@ export default function VerifySection() {
                 </Button>
               )}
             </div>
-            
+
             {verification.type === "image" && (
               <div className="bg-secondary/30 p-4 rounded-lg">
                 <div className="text-xs text-muted-foreground mb-2">Content Type</div>
